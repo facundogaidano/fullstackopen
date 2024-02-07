@@ -51,11 +51,18 @@ app.post('/api/persons', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-  const date = new Date()
-  response.send(
-        `<p>Phonebook has info for ${persons.length} persons</p>
+  Phonebook.countDocuments({}, (err, count) => {
+    if (err) {
+      console.error(err)
+      response.status(500).send({ error: 'An error occurred while retrieving the data.' })
+    } else {
+      const date = new Date()
+      response.send(
+        `<p>Phonebook has info for ${count} persons</p>
         <p>${date}</p>`
-  )
+      )
+    }
+  })
 })
 
 app.get('/api/persons/:id', (request, response) => {

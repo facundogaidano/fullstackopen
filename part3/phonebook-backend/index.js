@@ -19,9 +19,30 @@ app.use(morgan('tiny'))
 let persons = [
 ]
 
+const postMorgan = morgan(':method :url :status :res[content-length] - :response-time ms :body')
+
 app.get('/api/persons', (request, response) => {
   Phonebook.find({}).then(persons => {
     response.json(persons)
+  })
+})
+
+app.post('/api/persons', postMorgan, (request, response) => {
+  const body = request.body
+
+  if (body.name === undefined) {
+    return response.status(400).json({ error: 'name missing' })
+  } else if (body.number === undefined) {
+    return response.status(400).json({ error: 'number missing' })
+  }
+
+  const book = new Phonebook({
+    name: body.name,
+    number: body.number
+  })
+
+  book.save().then(savedToPhonebook => {
+    response.json(savedToPhonebook)
   })
 })
 
@@ -44,27 +65,6 @@ app.delete('/api/persons/:id', (request, response) => {
   persons = persons.filter(person => person.id !== id)
 
   response.status(204).end()
-})
-
-const postMorgan = morgan(':method :url :status :res[content-length] - :response-time ms :body')
-
-app.post('/api/persons', postMorgan, (request, response) => {
-  const body = request.body
-
-  if (body.name === undefined) {
-    return response.status(400).json({ error: 'name missing' })
-  } else if (body.number === undefined) {
-    return response.status(400).json({ error: 'number missing' })
-  }
-
-  const book = new Phonebook({
-    name: body.name,
-    number: body.number
-  })
-
-  book.save().then(savedToPhonebook => {
-    response.json(savedToPhonebook)
-  })
 })
 
 app.use(unknownEndpoint)

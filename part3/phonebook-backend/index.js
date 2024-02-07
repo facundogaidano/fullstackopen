@@ -1,25 +1,29 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
-const morgan = require('morgan')
 const cors = require('cors')
-require('dotenv').config()
 
 const Phonebook = require('./models/phonebook')
+
+const requestLogger = (request, response, next) => {
+  console.log('Method:', request.method)
+  console.log('Path:  ', request.path)
+  console.log('Body:  ', request.body)
+  console.log('---')
+  next()
+}
 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
 
 app.use(cors())
-morgan.token('body', (request) => JSON.stringify(request.body))
 app.use(express.json())
 app.use(express.static('dist'))
-app.use(morgan('tiny'))
+app.use(requestLogger)
 
 let persons = [
 ]
-
-const postMorgan = morgan(':method :url :status :res[content-length] - :response-time ms :body')
 
 app.get('/api/persons', (request, response) => {
   Phonebook.find({}).then(persons => {
@@ -27,7 +31,7 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
-app.post('/api/persons', postMorgan, (request, response) => {
+app.post('/api/persons', (request, response) => {
   const body = request.body
 
   if (body.name === undefined) {
@@ -46,13 +50,13 @@ app.post('/api/persons', postMorgan, (request, response) => {
   })
 })
 
-/* app.get('/info', (request, response) => {
+app.get('/info', (request, response) => {
   const date = new Date()
   response.send(
         `<p>Phonebook has info for ${persons.length} persons</p>
         <p>${date}</p>`
   )
-}) */
+})
 
 app.get('/api/persons/:id', (request, response) => {
   Phonebook.findById(request.params.id).then(person => {

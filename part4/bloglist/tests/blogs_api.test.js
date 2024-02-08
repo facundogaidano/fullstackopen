@@ -90,9 +90,7 @@ describe('when a new blog is created', () => {
     const titles = blogsAtEnd.map(b => b.title)
     expect(titles).toContain('Test Blog')
   })
-})
 
-describe('when a new blog is created', () => {
   test('if likes is missing, it defaults to  0', async () => {
     const blogsAtStart = await Blog.find({})
     const newBlog = {
@@ -115,9 +113,7 @@ describe('when a new blog is created', () => {
 
     expect(savedBlog.likes).toBe(0)
   })
-})
 
-describe('when a new blog is created', () => {
   test('if title or url is missing, the backend responds with  400 Bad Request', async () => {
     const blogsAtStart = await Blog.find({})
     const newBlog = {
@@ -133,6 +129,41 @@ describe('when a new blog is created', () => {
 
     const blogsAtEnd = await Blog.find({})
     expect(blogsAtEnd.length).toBe(blogsAtStart.length)
+  })
+})
+
+describe('when a blog is deleted', () => {
+  test('it is removed from the database', async () => {
+    const blogsAtStart = await Blog.find({})
+    const blogToDelete = blogsAtStart[0]
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
+
+    const blogsAtEnd = await Blog.find({})
+    const titles = blogsAtEnd.map(b => b.title)
+
+    expect(titles).not.toContain(blogToDelete.title)
+  })
+})
+
+describe('when a blog is updated', () => {
+  test('it is updated in the database', async () => {
+    const blogsAtStart = await Blog.find({})
+    const blogToUpdate = blogsAtStart[0]
+    const updatedLikes = blogToUpdate.likes + 1
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send({ likes: updatedLikes })
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await Blog.find({})
+    const updatedBlog = blogsAtEnd.find(b => b.id === blogToUpdate.id)
+
+    expect(updatedBlog.likes).toBe(updatedLikes)
   })
 })
 

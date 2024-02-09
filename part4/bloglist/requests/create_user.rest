@@ -1,0 +1,11 @@
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+    "username": "MrFakon 2",
+    "name": "Facundo",
+    "password": "testingpass"
+}
+
+
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1yRmFrb24iLCJpZCI6IjY1YzY2Njg0NDc2YmI5MTE5NTZjZmY5NiIsImlhdCI6MTcwNzUwMTE5OX0.8nsMnumUtAvvfMd6d-FUGzvRfzjZ9_e7isQxKk27MC0

@@ -1,0 +1,11 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1yRmFrb24yIiwiaWQiOiI2NWM3ODFlYjkzNjM2NTMxNjlhOWM3NDMiLCJpYXQiOjE3MDc1NzM3NzQsImV4cCI6MTcwNzU3NzM3NH0.xkUTmPTYLoAbvFtpWkqtXMg1wHgdyp42_yHKAwwcsEg
+
+{
+    "title": "The Best Title",
+    "author": "Miguel",
+    "url": "URL",
+    "likes": 1,
+    "userId": "65c774af9363653169a9c600" 
+}

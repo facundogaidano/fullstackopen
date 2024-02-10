@@ -13,9 +13,11 @@ const App = () => {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs(blogs)
-    ).catch(() => {
+    blogService.getAll().then(blogs => {
+      // Ordena las publicaciones por el número de likes
+      const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes)
+      setBlogs(sortedBlogs)
+    }).catch(() => {
       setStyle('error')
       setErrorMessage('error fetching data from backend api')
       setTimeout(() => { setErrorMessage(null) }, 5000)
@@ -83,15 +85,26 @@ const App = () => {
     window.localStorage.removeItem('loggedNoteappUser')
   }
 
+  const handleDeleteBlog = async (id) => {
+    try {
+      await blogService.deleteBlog(id)
+      setBlogs(blogs.filter(blog => blog.id !== id))
+    } catch (error) {
+      console.error('Error deleting blog:', error)
+      // Handle the error, e.g., show a notification
+    }
+  }
+
   return (
     <div>
       <Notification message={errorMessage} style={style} />
+      <h2>blogs</h2>
       {user
         ? (
           <div>
+            <p>{user && user.name} logged in <button onClick={handleLogout}>Logout</button></p>
             <CreateBlog
               addBlog={addBlog}
-              handleLogout={handleLogout}
               user={user}
             />
           </div>
@@ -104,7 +117,7 @@ const App = () => {
           </div>
           )}
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} userId={user.id} user={user} onDelete={handleDeleteBlog} />
       )}
     </div>
   )

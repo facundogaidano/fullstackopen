@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import Toggable from './Toggable'
 
-export default function CreateBlog ({ addBlog, user, handleLogout }) {
+export default function CreateBlog ({ addBlog, user }) {
   const [newBlogTitle, setNewBlogTitle] = useState('')
   const [newBlogAuthor, setNewBlogAuthor] = useState('')
   const [newBlogUrl, setNewBlogUrl] = useState('')
+  const toggableRef = useRef()
 
   const handleNewBlogChange = (event) => {
     const { name, value } = event.target
@@ -36,12 +37,11 @@ export default function CreateBlog ({ addBlog, user, handleLogout }) {
     setNewBlogUrl('')
 
     addBlog(blogObject)
+    toggableRef.current.toggleVisibility()
   }
 
   return (
-    <Toggable buttonLabel='New Blog'>
-      <h2>blogs</h2>
-      <p>{user.name} logged in <button onClick={handleLogout}>Logout</button></p>
+    <Toggable buttonLabel='New Blog' cancelButtonLabel='Cancel' ref={toggableRef}>
       <h2>Create New Blog</h2>
       <form onSubmit={handleSubmitBlog}>
         <div>

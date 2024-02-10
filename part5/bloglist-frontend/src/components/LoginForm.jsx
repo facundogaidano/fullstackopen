@@ -14,7 +14,7 @@ export default function LoginForm ({ loginUser }) {
   }
 
   return (
-    <Toggable buttonLabel='Show Login'>
+    <Toggable buttonLabel='Show Login' cancelButtonLabel='Cancel'>
       <h2>Log in to application</h2>
       <form onSubmit={handleSummitLogin}>
         <div>

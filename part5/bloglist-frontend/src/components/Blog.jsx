@@ -36,7 +36,7 @@ const Blog = ({ blog, userId, onDelete, updateBlogLikes }) => {
         <div>
           <div>{blog.url}</div>
           <div>likes {blog.likes} <button onClick={addLike}>Like</button></div>
-          <div>{blog.user.name}</div>
+          <div>{blog.user ? blog.user.name : ''}</div>
           {blog.user && blog.user.id === userId && (
             <div><button onClick={handleDelete}>Delete</button></div>
           )}

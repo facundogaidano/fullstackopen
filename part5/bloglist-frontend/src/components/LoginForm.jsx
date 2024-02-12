@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Toggable from './Toggable'
+import PropTypes from 'prop-types'
 
 export default function LoginForm ({ loginUser }) {
   const [username, setUsername] = useState('')

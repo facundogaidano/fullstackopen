@@ -8,6 +8,8 @@ import CreateBlog from './components/CreateBlog'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
+  const [blogsVersion, setBlogsVersion] = useState(0)
+
   const [errorMessage, setErrorMessage] = useState(null)
   const [style, setStyle] = useState('')
   const [user, setUser] = useState(null)
@@ -95,6 +97,18 @@ const App = () => {
     }
   }
 
+  const updateBlogLikes = async (blogId) => {
+    const blogToUpdate = blogs.find((blog) => blog.id === blogId)
+    const updatedBlog = { ...blogToUpdate, likes: blogToUpdate.likes + 1 }
+
+    try {
+      await blogService.addLike(updatedBlog)
+      setBlogsVersion(blogsVersion + 1)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   return (
     <div>
       <Notification message={errorMessage} style={style} />
@@ -117,7 +131,13 @@ const App = () => {
           </div>
           )}
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} userId={user.id} user={user} onDelete={handleDeleteBlog} />
+        <Blog
+          key={blog.id}
+          blog={blog}
+          userId={user ? user.id : null}
+          onDelete={handleDeleteBlog}
+          updateBlogLikes={updateBlogLikes}
+        />
       )}
     </div>
   )

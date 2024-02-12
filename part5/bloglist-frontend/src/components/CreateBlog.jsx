@@ -41,7 +41,7 @@ export default function CreateBlog ({ addBlog, user }) {
   }
 
   return (
-    <Toggable buttonLabel='New Blog' cancelButtonLabel='Cancel' ref={toggableRef}>
+    <Toggable buttonLabel='New Blog' ref={toggableRef}>
       <h2>Create New Blog</h2>
       <form onSubmit={handleSubmitBlog}>
         <div>

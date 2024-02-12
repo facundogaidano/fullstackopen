@@ -9,7 +9,7 @@ const blogStyle = {
   marginBottom: 5
 }
 
-const Blog = ({ blog, userId, onDelete, updateBlogLikes }) => {
+const Blog = ({ blog, username, onDelete, updateBlogLikes }) => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this blog post?')) {
       try {
@@ -31,18 +31,25 @@ const Blog = ({ blog, userId, onDelete, updateBlogLikes }) => {
 
   return (
     <div style={blogStyle}>
-      <div>{blog.title}, {blog.author}</div>
-      <Toggable key={blog.id} buttonLabel='View' cancelButtonLabel='Hide'>
-        <div>
-          <div>{blog.url}</div>
-          <div>likes {blog.likes} <button onClick={addLike}>Like</button></div>
-          <div>{blog.user ? blog.user.name : ''}</div>
-          {blog.user && blog.user.id === userId && (
-            <div><button onClick={handleDelete}>Delete</button></div>
-          )}
-
-        </div>
-      </Toggable>
+      <div>{blog.title}, {blog.author}
+        <Toggable key={blog.id} buttonLabel='View' cancelButtonLabel='Hide'>
+          <div>
+            <div>{blog.url}</div>
+            <div>
+              likes{' '}
+              <span data-cy='likeCount'>{blog.likes}</span>{' '}
+              <button onClick={addLike}>Like</button>
+            </div>
+            <div>
+              {console.log(username, 'username')}
+              {console.log(blog.user.username, 'blog.user.username')}
+              {username === blog.user.username
+                ? <button data-cy='deleteButton' onClick={handleDelete}>Delete Blog</button>
+                : null}
+            </div>
+          </div>
+        </Toggable>
+      </div>
     </div>
   )
 }

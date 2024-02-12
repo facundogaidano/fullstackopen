@@ -13,6 +13,7 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [style, setStyle] = useState('')
   const [user, setUser] = useState(null)
+  const [name, setName] = useState('')
 
   useEffect(() => {
     blogService.getAll().then(blogs => {
@@ -27,7 +28,7 @@ const App = () => {
   }, [])
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
@@ -35,11 +36,18 @@ const App = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if (user) {
+      setName(user.name)
+    }
+  }, [user])
+
   const addBlog = (blogObject) => {
     blogService
       .create(blogObject)
       .then(returnedBlog => {
-        setBlogs(prevBlogs => prevBlogs.concat(returnedBlog))
+        console.log('Returned blog:', returnedBlog)
+        setBlogs(prevBlogs => [...prevBlogs, returnedBlog])
         setErrorMessage(`A new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
         setStyle('success')
         setTimeout(() => {
@@ -61,7 +69,7 @@ const App = () => {
       })
 
       window.localStorage.setItem(
-        'loggedNoteappUser', JSON.stringify(user)
+        'loggedBlogappUser', JSON.stringify(user)
       )
 
       blogService
@@ -84,7 +92,7 @@ const App = () => {
   const handleLogout = () => {
     setUser(null)
     blogService.setToken(user.token)
-    window.localStorage.removeItem('loggedNoteappUser')
+    window.localStorage.removeItem('loggedBlogappUser')
   }
 
   const handleDeleteBlog = async (id) => {
@@ -112,32 +120,32 @@ const App = () => {
   return (
     <div>
       <Notification message={errorMessage} style={style} />
-      <h2>blogs</h2>
-      {user
-        ? (
-          <div>
-            <p>{user && user.name} logged in <button onClick={handleLogout}>Logout</button></p>
-            <CreateBlog
-              addBlog={addBlog}
-              user={user}
+      <h2>Blogs</h2>
+      {!user && (
+        <>
+          <LoginForm
+            loginUser={loginUser}
+          />
+        </>
+      )}
+      {user && (
+        <>
+          <p>{name} logged in <button data-cy='logoutButton' onClick={handleLogout}>Logout</button></p>
+          {console.log(user.username)}
+          <CreateBlog
+            addBlog={addBlog}
+            user={user}
+          />
+          {blogs.map(blog =>
+            <Blog
+              key={blog.id}
+              blog={blog}
+              username={user.username}
+              onDelete={handleDeleteBlog}
+              updateBlogLikes={updateBlogLikes}
             />
-          </div>
-          )
-        : (
-          <div>
-            <LoginForm
-              loginUser={loginUser}
-            />
-          </div>
           )}
-      {blogs.map(blog =>
-        <Blog
-          key={blog.id}
-          blog={blog}
-          userId={user ? user.id : null}
-          onDelete={handleDeleteBlog}
-          updateBlogLikes={updateBlogLikes}
-        />
+        </>
       )}
     </div>
   )

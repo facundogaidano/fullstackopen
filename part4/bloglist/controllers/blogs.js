@@ -38,7 +38,8 @@ bloglistsRouter.post('/', async (request, response) => {
     return response.status(400).json({ error: 'title and url are required' })
   } else {
     const savedBlog = await blog.save()
-    response.status(201).json(savedBlog)
+    const blogWithUser = await Blog.findById(savedBlog._id).populate('user', { username: 1, name: 1 })
+    response.status(201).json(blogWithUser)
   }
 })
 

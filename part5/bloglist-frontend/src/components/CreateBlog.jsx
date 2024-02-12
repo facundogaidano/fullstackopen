@@ -71,7 +71,7 @@ export default function CreateBlog ({ addBlog, user }) {
             onChange={handleNewBlogChange}
           />
         </div>
-        <button type='submit'>Create</button>
+        <button data-cy='submit_blog' type='submit'>Create</button>
       </form>
     </Toggable>
   )

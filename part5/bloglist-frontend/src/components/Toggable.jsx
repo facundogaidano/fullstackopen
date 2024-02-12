@@ -1,7 +1,7 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react'
 import PropTypes from 'prop-types'
 
-const Toggable = forwardRef(({ children, buttonLabel, cancelButtonLabel = 'Cancel'}, ref) => {
+const Toggable = forwardRef(({ children, buttonLabel, cancelButtonLabel = 'Cancel' }, ref) => {
   const [visible, setVisible] = useState(false)
 
   const hideWhenVisible = { display: visible ? 'none' : '' }
@@ -18,12 +18,12 @@ const Toggable = forwardRef(({ children, buttonLabel, cancelButtonLabel = 'Cance
   return (
     <div>
       <div style={hideWhenVisible}>
-        <button onClick={toggleVisibility}>{buttonLabel}</button>
+        <button data-cy='toggableButtonShow' name='showToggableButton' onClick={toggleVisibility}>{buttonLabel}</button>
       </div>
 
       <div style={showWhenVisible}>
         {children}
-        <button onClick={toggleVisibility}>{cancelButtonLabel}</button>
+        <button data-cy='toggableButtonHide' name='hideToggableButton' onClick={toggleVisibility}>{cancelButtonLabel}</button>
       </div>
     </div>
   )

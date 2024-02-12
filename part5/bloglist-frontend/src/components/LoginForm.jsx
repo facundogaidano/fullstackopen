@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Toggable from './Toggable'
-import PropTypes from 'prop-types'
+// import PropTypes from 'prop-types'
 
 export default function LoginForm ({ loginUser }) {
   const [username, setUsername] = useState('')
@@ -15,8 +15,8 @@ export default function LoginForm ({ loginUser }) {
   }
 
   return (
-    <Toggable buttonLabel='Show Login' cancelButtonLabel='Cancel'>
-      <h2>Log in to application</h2>
+    <Toggable buttonLabel='Show Login'>
+      <h2>Login to application</h2>
       <form onSubmit={handleSummitLogin}>
         <div>
           Username
@@ -36,7 +36,7 @@ export default function LoginForm ({ loginUser }) {
             onChange={({ target }) => setPassword(target.value)}
           />
         </div>
-        <button type='submit'>Login</button>
+        <button data-cy='login' type='submit'>Login</button>
       </form>
     </Toggable>
   )

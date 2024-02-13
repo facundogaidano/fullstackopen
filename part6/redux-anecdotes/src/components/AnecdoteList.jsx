@@ -1,38 +1,37 @@
 import { useSelector, useDispatch } from 'react-redux'
-import { voteAnecdote } from '../reducers/anecdoteReducer'
-import { setFilter } from '../reducers/filterReducer'
+import { addVotes } from '../reducers/anecdoteReducer'
 import { setNotification } from '../reducers/notificationReducer'
 import AnecdoteFilter from './AnecdoteFilter'
 import Notification from './Notification'
 
 const AnecdoteList = () => {
+  const anecdotes = useSelector(state => {
+    if (state.filters === null) {
+      return state.anecdotes
+        .sort((a, b) => b.votes - a.votes)
+    }
+    return state.anecdotes.filter((anecdote) =>
+      typeof anecdote.content === 'string' &&
+    anecdote.content.toLowerCase().includes(state.filters.toLowerCase())
+    ).sort((a, b) => b.votes - a.votes)
+  })
+
   const dispatch = useDispatch()
-  const anecdotes = useSelector(state => state.anecdotes)
-  const filter = useSelector(state => state.filter)
 
   const vote = (id, content) => {
-    dispatch(voteAnecdote({ id }))
+    console.log('vote', id, content)
+    dispatch(addVotes(id))
     dispatch(setNotification(`You voted for "${content}" !`, 5))
-  }
-
-  const sortedAnecdotes = [...anecdotes].sort((a, b) => b.votes - a.votes)
-
-  const filteredAnecdotes = sortedAnecdotes.filter(anecdote =>
-    anecdote && anecdote.content && anecdote.content.includes(filter)
-  )
-
-  const handleFilterChange = (event) => {
-    dispatch(setFilter(event.target.value))
   }
 
   return (
     <>
       <h2>Anecdotes</h2>
       <Notification />
-      <AnecdoteFilter onFilterChange={handleFilterChange} />
-      {filteredAnecdotes.map(anecdote =>
+      <AnecdoteFilter />
+      {anecdotes.map(anecdote =>
         <div key={anecdote.id}>
-          <div>{anecdote.content}</div>
+          <div>{String(anecdote.content)}</div>
           <div>
             has {anecdote.votes}
             <button onClick={() => vote(anecdote.id, anecdote.content)}>vote</button>

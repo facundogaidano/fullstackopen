@@ -6,9 +6,11 @@ import notificationReducer from './reducers/notificationReducer'
 const store = configureStore({
   reducer: {
     anecdotes: anecdoteReducer,
-    filter: filterReducer,
+    filters: filterReducer,
     notifications: notificationReducer
   }
 })
+
+store.subscribe(() => { console.log(store.getState()) })
 
 export default store

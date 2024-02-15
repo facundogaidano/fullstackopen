@@ -18,9 +18,9 @@ const deletePerson = id => {
   return request.then(response => response.data)
 }
 
-export default { 
-  getAll: getAll, 
-  create: create, 
-  update: update,
-  deletePerson: deletePerson
+export default {
+  getAll,
+  create,
+  update,
+  deletePerson
 }

@@ -5,7 +5,7 @@ import { updateLike, deleteBlog } from '../requests'
 import { NotificationContext } from '../reducers/notificationReducer'
 import { useContext } from 'react'
 
-const BlogList = ({ user, logout, blogs }) => {
+const BlogList = ({ user, blogs }) => {
   const queryClient = useQueryClient()
   const { dispatch } = useContext(NotificationContext)
 
@@ -64,8 +64,6 @@ const BlogList = ({ user, logout, blogs }) => {
   return (
     <>
       <div>
-        {user.name} logged in
-        <button onClick={logout}>logout</button>
         <NewBlog />
       </div>
       <div>

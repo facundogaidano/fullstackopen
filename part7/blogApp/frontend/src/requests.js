@@ -47,3 +47,11 @@ export const updateLike = updatedVote => {
   const voteIncremented = { ...updatedVote, likes: updatedVote.likes + 1 }
   return axios.put(`${baseUrl}/${voteIncremented.id}`, voteIncremented).then(res => res.data)
 }
+
+export const getUsers = async () => {
+  const response = await fetch('api/users')
+  if (!response.ok) {
+    throw new Error('Error fetching users')
+  }
+  return response.json()
+}

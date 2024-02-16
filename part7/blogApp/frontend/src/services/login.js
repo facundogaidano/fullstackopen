@@ -16,7 +16,6 @@ const login = async credentials => {
   }
 
   const responseData = await response.json()
-  console.log('Server response:', responseData)
   return responseData
 }
 

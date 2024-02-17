@@ -13,6 +13,20 @@ export const getBlogs = () => {
   return axios.get(baseUrl).then(res => res.data)
 }
 
+export const addComment = async (blogId, content) => {
+  const user = storageService.loadUser()
+  const token = user ? user.token : null
+  if (!token) {
+    console.error('No token found')
+    return Promise.reject(new Error('No token found'))
+  }
+  const config = {
+    headers: { Authorization: `Bearer ${token}` }
+  }
+  const response = await axios.post(`${baseUrl}/${blogId}/comments`, { content }, config)
+  return response.data
+}
+
 export const createBlog = newAnecdote => {
   const user = storageService.loadUser()
   const token = user ? user.token : null
@@ -25,10 +39,6 @@ export const createBlog = newAnecdote => {
   }
   return axios.post(baseUrl, newAnecdote, config).then(res => res.data)
 }
-
-/* export const updateBlog = (id, updatedBlog) => {
-  return axios.put(`${baseUrl}/${id}`, updatedBlog)
-} */
 
 export const deleteBlog = id => {
   const token = getToken()

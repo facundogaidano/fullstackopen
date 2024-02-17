@@ -4,6 +4,8 @@ import { NotificationContext } from '../reducers/notificationReducer'
 import { createBlog } from '../requests'
 import Togglable from './Togglable'
 import { BlogContext } from '../reducers/blogReducer'
+import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
 
 const BlogForm = () => {
   const [title, setTitle] = useState('')
@@ -75,36 +77,22 @@ const BlogForm = () => {
       <Togglable buttonLabel='New Blog' ref={togglableRef}>
         <h4>Create a new blog</h4>
 
-        <form onSubmit={handleSubmit}>
-          <div>
-            title
-            <input
-              id='title'
-              placeholder='title'
-              value={title}
-              onChange={({ target }) => setTitle(target.value)}
-            />
-          </div>
-          <div>
-            author
-            <input
-              id='author'
-              placeholder='author'
-              value={author}
-              onChange={({ target }) => setAuthor(target.value)}
-            />
-          </div>
-          <div>
-            url
-            <input
-              id='url'
-              placeholder='url'
-              value={url}
-              onChange={({ target }) => setUrl(target.value)}
-            />
-          </div>
-          <button type='submit'>create</button>
-        </form>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className='mb-3'>
+            <Form.Label>Title</Form.Label>
+            <Form.Control type='text' placeholder='Enter title' onChange={({ target }) => setTitle(target.value)} value={title} />
+          </Form.Group>
+          <Form.Group className='mb-3'>
+            <Form.Label>Author</Form.Label>
+            <Form.Control type='text' placeholder='Enter author' onChange={({ target }) => setAuthor(target.value)} value={author} />
+          </Form.Group>
+          <Form.Group className='mb-3'>
+            <Form.Label>URL</Form.Label>
+            <Form.Control type='url' placeholder='Enter url' onChange={({ target }) => setUrl(target.value)} value={url} />
+          </Form.Group>
+          <Button variant='success' className='me-2' type='submit'>Create</Button>
+          <Button variant='secondary' onClick={() => togglableRef.current.toggleVisibility()}>Cancel</Button>
+        </Form>
       </Togglable>
     </div>
   )

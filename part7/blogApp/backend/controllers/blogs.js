@@ -65,4 +65,36 @@ router.delete('/:id', userExtractor, async (request, response) => {
   response.status(204).end()
 })
 
+router.post('/:id/comments', async (request, response) => {
+  // const { id } = request.params
+  const { content } = request.body
+
+  const blog = await Blog.findById(request.params.id)
+  console.log(request.params.id)
+  if (!blog) {
+    return response.status(404).json({ error: 'Blog not found' })
+  }
+
+  const comment = { content }
+  blog.comments.push(comment)
+  await blog.save()
+
+  response.status(201).json(comment)
+})
+
+router.get('/:id/comments', async (request, response) => {
+  const { id } = request.params
+
+  try {
+    const blog = await Blog.findById(id).populate('comments')
+    if (!blog) {
+      return response.status(404).json({ error: 'Blog not found' })
+    }
+
+    response.json(blog.comments)
+  } catch (error) {
+    response.status(500).json({ error: 'Something went wrong' })
+  }
+})
+
 module.exports = router

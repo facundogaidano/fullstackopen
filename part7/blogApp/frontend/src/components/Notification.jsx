@@ -1,23 +1,19 @@
 import { useContext } from 'react'
 import { NotificationContext } from '../reducers/notificationReducer'
+import Alert from 'react-bootstrap/Alert'
 
 const Notification = () => {
   const { state, typeNoti } = useContext(NotificationContext)
-  const style = {
-    display: state.message ? 'block' : 'none',
-    color: typeNoti === 'error' ? 'red' : 'green',
-    background: 'lightgrey',
-    fontSize: 20,
-    borderStyle: 'solid',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10
+  const variant = typeNoti === 'error' ? 'danger' : 'success'
+
+  if (!state || !state.message) {
+    return null // No renderiza nada si el estado es null o si el mensaje está vacío
   }
 
   return (
-    <div style={style}>
-      {state.message}
-    </div>
+    <Alert variant={variant}>
+      <Alert.Heading>{state.message}</Alert.Heading>
+    </Alert>
   )
 }
 

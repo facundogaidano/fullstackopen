@@ -1,21 +1,21 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState, useEffect, useContext } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { getBlogs, getUsers } from './requests'
-import { UserContext, actions } from './reducers/userReducer'
-import storageService from './services/storage'
-import loginService from './services/login'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
+import storageService from './services/storage'
 import Login from './components/Login'
 import BlogList from './components/BlogList'
 import Notification from './components/Notification'
 import UsersList from './UsersList'
 import UsersBlogs from './UsersBlogs'
+import Blog from './Blog'
+import Menu from './Menu'
+import loginService from './services/login'
 
 const App = () => {
   const [user, setUser] = useState('')
-  const { dispatch: logoutDispatch } = useContext(UserContext)
-  const queryClient = useQueryClient()
 
   useEffect(() => {
     const user = storageService.loadUser()
@@ -37,11 +37,6 @@ const App = () => {
   if (result.isLoading) {
     return <div>loading data...</div>
   }
-
-  if (usersResult.isLoading) {
-    return <div>loading users...</div>
-  }
-
   const blogs = result.data
 
   const users = usersResult.data
@@ -56,28 +51,17 @@ const App = () => {
     }
   }
 
-  const handleLogout = () => {
-    logoutDispatch({ type: actions.LOGOUT })
-    storageService.removeUser()
-    setUser('')
-    queryClient.invalidateQueries('login')
-  }
-
-  if (!user) {
-    return <Login login={login} />
-  }
-
   return (
-    <div>
-      <h2>blogs</h2>
-      {user.name} logged in
-      <button onClick={handleLogout}>logout</button>
+    <div className='container'>
+      <Menu user={user} setUser={setUser} />
       <Notification />
       <Routes>
         <Route path='/' element={<BlogList user={user} blogs={blogs} />} />
-        <Route path='/blogs' element={<BlogList user={user} blogs={blogs} />} />
+        <Route path='/blogs' element={<BlogList blogs={blogs} />} />
+        <Route path='/blogs/:blogId' element={<Blog user={user} blogs={blogs} />} />
         <Route path='/users' element={<UsersList users={users} />} />
         <Route path='/users/:userId' element={<UsersBlogs users={users} />} />
+        <Route path='/login' element={<Login login={login} />} />
       </Routes>
     </div>
   )

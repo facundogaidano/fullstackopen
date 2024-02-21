@@ -1,8 +1,11 @@
 import { GraphQLError } from 'graphql'
+import { PubSub } from 'graphql-subscriptions'
 import Book from './models/book.js'
 import Author from './models/author.js'
 import User from './models/user.js'
 import jwt from 'jsonwebtoken'
+
+const pubsub = new PubSub()
 
 const resolvers = {
   Query: {
@@ -84,6 +87,9 @@ const resolvers = {
       const savedBook = await book.save()
 
       const bookWithAuthorName = await Book.findById(savedBook._id).populate('author')
+
+      pubsub.publish('BOOK_ADDED', { bookAdded: bookWithAuthorName })
+
       return {
         ...bookWithAuthorName._doc,
         id: bookWithAuthorName._id.toString(),
@@ -157,6 +163,18 @@ const resolvers = {
       }
 
       return { value: jwt.sign(userForToken, process.env.SECRET) }
+    }
+  },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator('BOOK_ADDED'),
+      resolve: (payload) => {
+        return {
+          ...payload.bookAdded._doc,
+          id: payload.bookAdded._id.toString(),
+          author: payload.bookAdded.author.name // Asegúrate de que esto sea un String
+        }
+      }
     }
   }
 }

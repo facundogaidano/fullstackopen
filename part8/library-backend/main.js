@@ -1,5 +1,7 @@
 import { ApolloServer } from '@apollo/server'
 import jwt from 'jsonwebtoken'
+import { WebSocketServer } from 'ws'
+import { useServer } from 'graphql-ws/lib/use/ws'
 import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { makeExecutableSchema } from '@graphql-tools/schema'
@@ -33,10 +35,30 @@ const start = async () => {
   const app = express()
   const httpServer = http.createServer(app)
 
-  const server = new ApolloServer({
-    schema: makeExecutableSchema({ typeDefs, resolvers }),
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '/'
   })
+
+  const schema = makeExecutableSchema({ typeDefs, resolvers })
+  const serverCleanup = useServer({ schema }, wsServer)
+
+  const server = new ApolloServer({
+    schema,
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart () {
+          return {
+            async drainServer () {
+              await serverCleanup.dispose()
+            }
+          }
+        }
+      }
+    ]
+  })
+
   await server.start()
 
   app.use(

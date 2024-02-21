@@ -39,6 +39,11 @@ const Authors = ({ show, authors }) => {
   const submit = async (event) => {
     event.preventDefault()
 
+    const bornToNumber = parseInt(bornTo, 10)
+    if (isNaN(bornToNumber)) {
+      return
+    }
+
     editAuthor({ variables: { name, bornTo } })
 
     setBornTo('')
@@ -74,7 +79,7 @@ const Authors = ({ show, authors }) => {
             />
           </div>
           <div>
-            born <input type='number' value={bornTo} onChange={({ target }) => setBornTo(parseInt(target.value, 10))} />
+            born <input type='number' value={bornTo || ''} onChange={({ target }) => setBornTo(parseInt(target.value, 10))} />
             <button type='submit'>edit author</button>
           </div>
         </form>

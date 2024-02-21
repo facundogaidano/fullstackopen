@@ -44,6 +44,7 @@ const typeDefs = `
     allBooks(author: String, genre: String): [Book]
     allAuthors: [Author!]
     me: User
+    allGenres: [String!]!
   }
 
   type User {
@@ -122,6 +123,14 @@ const resolvers = {
     },
     me: (root, args, context) => {
       return context.currentUser
+    },
+    allGenres: async () => {
+      const genres = await Book.aggregate([
+        { $unwind: '$genres' },
+        { $group: { _id: '$genres' } },
+        { $project: { _id: 0, genres: '$_id' } }
+      ])
+      return genres.map(genre => genre.genres)
     }
   },
   Mutation: {
@@ -144,21 +153,28 @@ const resolvers = {
       const bookWithAuthorName = await Book.findById(savedBook._id).populate('author')
       return {
         ...bookWithAuthorName._doc,
+        id: bookWithAuthorName._id.toString(),
         author: bookWithAuthorName.author.name
       }
     },
 
     editAuthor: async (root, args, context) => {
       if (!context.currentUser) {
-        throw new GraphQLError('You must be logged in to add a book', {
+        throw new GraphQLError('You must be logged in to edit an author', {
           extensions: {
             code: 'UNAUTHENTICATED'
           }
         })
       }
+
       const author = await Author.findOne({ name: args.name })
+
       if (!author) {
-        throw new Error('Author not found')
+        throw new GraphQLError('Author not found', {
+          extensions: {
+            code: 'NOT_FOUND'
+          }
+        })
       }
 
       // Update the author's born field
@@ -171,6 +187,7 @@ const resolvers = {
       // Return the updated author with the new book count
       return {
         ...author._doc,
+        id: author._id.toString(),
         bookCount
       }
     },

@@ -1,5 +1,3 @@
-import { exit } from 'process'
-
 interface exerciseCalculatorRes {
   periodLength: number;
   trainingDays: number;
@@ -11,15 +9,15 @@ interface exerciseCalculatorRes {
 
 }
 
-const exerciseCalculator = (days: Array<number>, target: number): exerciseCalculatorRes => {
+export const exerciseCalculator = (days: Array<number>, target: number): exerciseCalculatorRes => {
   const trainingDays = days.filter(num => num !==   0).length
   const sumOfTrainingHours = days.reduce((sum, num) => sum + num, 0)
   let ratingValue = 0
   let ratingString = ''
   let average = 0
 
-  if(sumOfTrainingHours === 0) throw new Error('No not training allowed')
-  else average = (sumOfTrainingHours / 7)
+  if(trainingDays === 0) throw new Error('No not training allowed')
+  else average = (sumOfTrainingHours / trainingDays)
 
   if(target - average <= 0) {
     ratingString = 'Well done!'
@@ -41,15 +39,3 @@ const exerciseCalculator = (days: Array<number>, target: number): exerciseCalcul
     average
   }
 }
-
-if (process.argv.length <  4) {
-  console.error('Por favor, proporciona los días de entrenamiento y el objetivo como argumentos de línea de comandos.');
-  exit(1);
-}
-
-const days = process.argv.slice(2,  9).map(Number)
-const target = Number(process.argv[9])
-
-const result = exerciseCalculator(days, target)
-
-console.log(result)

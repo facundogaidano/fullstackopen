@@ -1,4 +1,4 @@
-import diagnosesData from '../data/diagnosesData'
+import diagnosesData from '../../data/diagnosesData'
 
 import { DiagnoseEntry } from '../types'
 

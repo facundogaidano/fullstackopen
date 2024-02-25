@@ -6,7 +6,7 @@ interface FormProps {
 }
 
 
-const Form: React.FC<FormProps> = ({ onSubmit }) => {
+const Form = ({ onSubmit }: FormProps) => {
   const [formData, setFormData] = useState<NewDiaryEntry>({
     date: '',
     weather: Weather.Sunny,

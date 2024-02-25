@@ -1,6 +1,6 @@
 import { EntriesProps } from "../types"
 
-const Entries: React.FC<EntriesProps> = ({ diary }) => {
+const Entries = ({ diary }: EntriesProps) => {
   return (
     <div>
       <h2>Diary entries</h2>

@@ -23,15 +23,24 @@ router.post('/', (req, res) => {
     }
     res.status(400).send(errorMessage);
   }
-  /* const { name, dateOfBirth, ssn, gender, occupation } = req.body
-  const addedPatient = patientService.addPatient({
-    name,
-    dateOfBirth,
-    ssn,
-    gender,
-    occupation
-  })
-  res.json(addedPatient) */
+})
+
+router.get('/:id', (req, res) => {
+  const patientId = req.params.id
+  try {
+    const patient = patientService.getPatientById(patientId)
+    if (patient) {
+      res.json(patient)
+    } else {
+      res.status(404).send('Patient not found')
+    }
+  } catch (error: unknown) {
+    let errorMessage = 'Something went wrong.';
+    if (error instanceof Error) {
+      errorMessage += ' Error: ' + error.message;
+    }
+    res.status(500).send(errorMessage);
+  }
 })
 
 export default router

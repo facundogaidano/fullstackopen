@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NewDiaryEntry, Visibility, Weather } from "../types";
 
 interface FormProps {
-  onSubmit: (entry: NewDiaryEntry) => void;
+  onSubmit: (entry: NewDiaryEntry) => void
 }
 
 
@@ -12,37 +12,14 @@ const Form = ({ onSubmit }: FormProps) => {
     weather: Weather.Sunny,
     visibility: Visibility.Great,
     comment: '',
-  });
+  })
 
-  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prevState => ({
-      ...prevState,
-      date: event.target.value,
-    }));
-  };
-
-  const handleWeatherChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newWeather = event.target.value as Weather;
-    setFormData(prevState => ({
-      ...prevState,
-      weather: newWeather,
-    }));
-  };
-
-  const handleVisibilityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newVisibility = event.target.value as Visibility;
-    setFormData(prevState => ({
-      ...prevState,
-      visibility: newVisibility,
-    }));
-  };
-
-  const handleCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prevState => ({
-      ...prevState,
-      comment: event.target.value,
-    }));
-  };
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value
+    })
+  }
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -53,53 +30,53 @@ const Form = ({ onSubmit }: FormProps) => {
       visibility: Visibility.Great,
       comment: '',
     })
-  };
+  }
 
   return (
     <div>
       <h2>Add new entry</h2>
       <form onSubmit={handleSubmit}>
         <label>
-          Date <input type="date" name="date" value={formData.date} onChange={handleDateChange} />
+          Date <input type="date" name="date" value={formData.date} onChange={handleChange} />
         </label>
         <br />
         <label>
           Visibility:
             <label>
-              <input type="radio" value="great" name="visibility" onChange={handleVisibilityChange} defaultChecked />Great
+              <input type="radio" value="great" name="visibility" onChange={handleChange} defaultChecked />Great
             </label>
             <label>
-              <input type="radio" value="good" name="visibility" onChange={handleVisibilityChange} />Good
+              <input type="radio" value="good" name="visibility" onChange={handleChange} />Good
             </label>
             <label>
-              <input type="radio" value="ok" name="visibility" onChange={handleVisibilityChange} />Ok
+              <input type="radio" value="ok" name="visibility" onChange={handleChange} />Ok
             </label>
             <label>
-              <input type="radio" value="poor" name="visibility" onChange={handleVisibilityChange} />Poor
+              <input type="radio" value="poor" name="visibility" onChange={handleChange} />Poor
             </label>
         </label>
         <br />
         <label>
           Weather:
             <label>
-              <input type="radio" value="sunny" name="weather" defaultChecked onChange={handleWeatherChange} />Sunny
+              <input type="radio" value="sunny" name="weather" defaultChecked onChange={handleChange} />Sunny
             </label>
             <label>
-              <input type="radio" value="rainy" name="weather" onChange={handleWeatherChange} />Rainy
+              <input type="radio" value="rainy" name="weather" onChange={handleChange} />Rainy
             </label>
             <label>
-              <input type="radio" value="cloudy" name="weather" onChange={handleWeatherChange} />Cloudy
+              <input type="radio" value="cloudy" name="weather" onChange={handleChange} />Cloudy
             </label>
             <label>
-              <input type="radio" value="stormy" name="weather" onChange={handleWeatherChange} />Stormy
+              <input type="radio" value="stormy" name="weather" onChange={handleChange} />Stormy
             </label>
             <label>
-              <input type="radio" value="windy" name="weather" onChange={handleWeatherChange} />Windy
+              <input type="radio" value="windy" name="weather" onChange={handleChange} />Windy
             </label>
         </label>
         <br />
         <label>
-          Comment <input type="text" name="comment" value={formData.comment} onChange={handleCommentChange} />
+          Comment <input type="text" name="comment" value={formData.comment} onChange={handleChange} />
         </label>
         <br />
         <button type="submit">Add</button>

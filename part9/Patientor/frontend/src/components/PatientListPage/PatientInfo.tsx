@@ -26,8 +26,6 @@ const PatientInfo = ({ patients, diagnoses }: Props) => {
     icon = <FemaleIcon />;
   }
 
-  console.log(patient.entries.map(entry => entry.diagnosisCodes))
-
   return (
     <>
       <Box>
@@ -47,28 +45,28 @@ const PatientInfo = ({ patients, diagnoses }: Props) => {
       </Typography>
       <Container>
       {patient.entries.map((entry) => (
-        <div>
-        <Typography variant="body1">
-          {entry.date} <em>{entry.description}</em>
-        </Typography>
-        <List>
-          {entry.diagnosisCodes?.flat().map((code) => {
-            const diagnosis = diagnoses.find(d => d.code === code);
-            return (
-              <Box key={code} mb={-1}>
-                <ListItem>
-                  <ListItemIcon>
-                    <CircleIcon />
-                  </ListItemIcon>
-                  <Typography variant="body1">
-                    {code} {diagnosis ? diagnosis.name : 'Descripción desconocida'}
-                  </Typography>
-                </ListItem>
-              </Box>
-            );
-          })}
-        </List>
-      </div>
+        <div key={entry.id}>
+          <Typography variant="body1">
+            {entry.date} <em>{entry.description}</em>
+          </Typography>
+          <List>
+            {entry.diagnosisCodes?.flat().map((code) => {
+              const diagnosis = diagnoses.find(d => d.code === code);
+              return (
+                <Box key={code} mb={-1}>
+                  <ListItem>
+                    <ListItemIcon>
+                      <CircleIcon />
+                    </ListItemIcon>
+                    <Typography variant="body1">
+                      {code} {diagnosis ? diagnosis.name : 'Descripción desconocida'}
+                    </Typography>
+                  </ListItem>
+                </Box>
+              );
+            })}
+          </List>
+        </div>
       ))}
       </Container>
     </>

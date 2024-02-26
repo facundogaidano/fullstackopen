@@ -1,4 +1,4 @@
-import { Gender, NewPatientEntry } from "./types";
+import { Gender, NewPatientEntry, HealthCheckRating, SickLeave, Entry, OccupationalHealthcareEntry, HealthCheckEntry, HospitalEntry } from "./types";
 
 const isString = (text: unknown): text is string => {
   return typeof text === 'string' || text instanceof String
@@ -47,23 +47,84 @@ const parseOccupation = (occupation: unknown): string => {
   return occupation
 }
 
+const parseEntries = (entries: unknown[]): Entry[] => {
+  const parsedEntries: Entry[] = [];
+
+  entries.forEach(entry => {
+    if (!entry || typeof entry !== 'object') {
+      throw new Error('Incorrect or missing data');
+    }
+
+    const entryObject = entry as Record<string, unknown>;
+
+    // Determinar el tipo de entrada basado en las propiedades del objeto
+    if ('healthCheckRating' in entryObject) {
+      // Asumiendo que 'healthCheckRating' es una propiedad única de HealthCheckEntry
+      const healthCheckEntry: HealthCheckEntry = {
+        type: "HealthCheck",
+        date: entryObject.date as string,
+        healthCheckRating: entryObject.healthCheckRating as HealthCheckRating,
+        id: typeof entryObject.id === 'string' ? entryObject.id : 'default-id',
+        description: entryObject.description as string || '', // Use provided description or an empty string
+        specialist: entryObject.specialist as string || '', // Use provided specialist or an empty string
+      };
+      parsedEntries.push(healthCheckEntry);
+    } else if ('employerName' in entryObject) {
+      // Asumiendo que 'employerName' es una propiedad única de OccupationalHealthcareEntry
+      const occupationalHealthcareEntry: OccupationalHealthcareEntry = {
+        type: 'OccupationalHealthcare',
+        date: entryObject.date as string,
+        employerName: entryObject.employerName as string,
+        sickLeave: {
+          startDate: (entryObject.sickLeave as SickLeave).startDate as string,
+          endDate: (entryObject.sickLeave as SickLeave).endDate as string,
+        },
+        id: "",
+        description: "",
+        specialist: ""
+      };
+      parsedEntries.push(occupationalHealthcareEntry);
+    } else if ('description' in entryObject) {
+      // Asumiendo que 'description' es una propiedad única de HospitalEntry
+      const hospitalEntry: HospitalEntry = {
+        type: 'Hospital',
+        date: entryObject.date as string,
+        description: entryObject.description as string,
+        specialist: entryObject.specialist as string,
+        diagnosisCodes: entryObject.diagnosisCodes as string[],
+        discharge: {
+          date: "",
+          criteria: ""
+        },
+        id: ""
+      };
+      parsedEntries.push(hospitalEntry);
+    } else {
+      throw new Error('Invalid entry type');
+    }
+  });
+
+  return parsedEntries;
+};
+
+
 const toNewPatientEntry = (object: unknown): NewPatientEntry => {
   if (!object || typeof object !== 'object') {
     throw new Error('Incorrect or missing data')
   }
-  if ('name' in object && 'dateOfBirth' in object && 'ssn' in object && 'gender' in object && 'occupation' in object) {
+  const objectWithEntries = object as Record<"name" | "dateOfBirth" | "ssn" | "gender" | "occupation" | "entries", unknown>;
+  if ('name' in objectWithEntries && 'dateOfBirth' in objectWithEntries && 'ssn' in objectWithEntries && 'gender' in objectWithEntries && 'occupation' in objectWithEntries && 'entries' in objectWithEntries) {
     const newPatientEntry: NewPatientEntry = {
-      name: parseName(object.name),
-      dateOfBirth: parseDate(object.dateOfBirth),
-      ssn: parseSSN(object.ssn),
-      gender: parseGender(object.gender),
-      occupation: parseOccupation(object.occupation),
-      entries: []
+      name: parseName(objectWithEntries.name),
+      dateOfBirth: parseDate(objectWithEntries.dateOfBirth),
+      ssn: parseSSN(objectWithEntries.ssn),
+      gender: parseGender(objectWithEntries.gender),
+      occupation: parseOccupation(objectWithEntries.occupation),
+      entries: Array.isArray(objectWithEntries.entries) ? parseEntries(objectWithEntries.entries) : []
     }
     return newPatientEntry
   }
 
   throw new Error('Incorrect data: a field missing');
 }
-
 export default toNewPatientEntry

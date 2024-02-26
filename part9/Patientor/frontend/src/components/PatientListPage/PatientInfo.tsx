@@ -1,9 +1,10 @@
 import { useParams } from "react-router-dom";
 import { Patient, Diagnosis } from "../../types";
-import { Box, Container, List, ListItem, ListItemIcon, Typography } from "@mui/material";
+import { Box, Button, Container, List, ListItem, ListItemIcon, Typography } from "@mui/material";
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 import CircleIcon from '@mui/icons-material/Circle';
+import EntryDetails from "./EntryDetails";
 
 interface Props {
   patients : Patient[]
@@ -26,6 +27,8 @@ const PatientInfo = ({ patients, diagnoses }: Props) => {
     icon = <FemaleIcon />;
   }
 
+  
+
   return (
     <>
       <Box>
@@ -46,20 +49,21 @@ const PatientInfo = ({ patients, diagnoses }: Props) => {
       <Container>
       {patient.entries.map((entry) => (
         <div key={entry.id}>
-          <Typography variant="body1">
-            {entry.date} <em>{entry.description}</em>
-          </Typography>
+          <EntryDetails entry={entry} />
           <List>
+          {(entry.diagnosisCodes || []).length >  0 && (
+              <Typography variant="h6">Diagnosis codes:</Typography>
+            )}
             {entry.diagnosisCodes?.flat().map((code) => {
               const diagnosis = diagnoses.find(d => d.code === code);
               return (
                 <Box key={code} mb={-1}>
                   <ListItem>
                     <ListItemIcon>
-                      <CircleIcon />
+                      <CircleIcon color="info" />
                     </ListItemIcon>
                     <Typography variant="body1">
-                      {code} {diagnosis ? diagnosis.name : 'Descripción desconocida'}
+                      {code}. {diagnosis ? diagnosis.name : 'Descripción desconocida'}
                     </Typography>
                   </ListItem>
                 </Box>
@@ -68,6 +72,7 @@ const PatientInfo = ({ patients, diagnoses }: Props) => {
           </List>
         </div>
       ))}
+      <Button variant="contained">Add new Entry</Button>
       </Container>
     </>
   )

@@ -1,7 +1,7 @@
 import patientData from '../../data/patientsData'
 import { v1 as uuid } from 'uuid'
 
-import { Patient, NewPatientEntry } from '../types'
+import { Patient, NewPatientEntry, Entry } from '../types'
 
 const patients: Patient[] = patientData.map(patient => ({
   ...patient,
@@ -26,9 +26,30 @@ const getPatientById = (id: string): Patient | null => {
   return patients.find(patient => patient.id === id) || null;
 };
 
+const addEntryToPatient = (patientId: string, entry: Entry): Promise<Patient | null> => {
+  const patientIndex = patients.findIndex(patient => patient.id === patientId);
+  if (patientIndex === -1) {
+    return Promise.resolve(null);
+  }
+  if (!entry.type) {
+    throw new Error('Tipo de entrada no especificado');
+  }
+
+  const updatedPatient = {
+
+    ...patients[patientIndex],
+    entries: [...patients[patientIndex].entries, entry],
+  };
+
+  patients[patientIndex] = updatedPatient;
+  return Promise.resolve(updatedPatient);
+};
+
+
 
 export default {
   getPatients,
   addPatient,
-  getPatientById
+  getPatientById,
+  addEntryToPatient
 }

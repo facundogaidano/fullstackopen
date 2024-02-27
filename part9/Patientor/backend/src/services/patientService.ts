@@ -1,55 +1,45 @@
-import patientData from '../../data/patientsData'
-import { v1 as uuid } from 'uuid'
+import patients from '../../data/patientsData';
+import { v1 as uuid } from 'uuid';
+import { NonSensitivePatient, Patient, NewPatient, EntryWithoutId } from '../types';
 
-import { Patient, NewPatientEntry, Entry } from '../types'
 
-const patients: Patient[] = patientData.map(patient => ({
-  ...patient,
-  gender: patient.gender,
-}))
-
-const getPatients = (): Patient[] => {
-  return patients
-}
-
-const addPatient = ( entry: NewPatientEntry ): Patient => {
-  const newPatientEntry = {
-    id: uuid(),
-    ...entry
-  }
-  patients.push(newPatientEntry)
-  return newPatientEntry
-}
-
-const getPatientById = (id: string): Patient | null => {
-  const patients = getPatients(); // Assuming getPatients is a method that returns all patients
-  return patients.find(patient => patient.id === id) || null;
+const getAllWithoutSsn = (): NonSensitivePatient[] => {
+  return patients.map((patient) => ({
+    ... patient, ssn: undefined
+  }));
 };
 
-const addEntryToPatient = (patientId: string, entry: Entry): Promise<Patient | null> => {
-  const patientIndex = patients.findIndex(patient => patient.id === patientId);
-  if (patientIndex === -1) {
-    return Promise.resolve(null);
-  }
-  if (!entry.type) {
-    throw new Error('Tipo de entrada no especificado');
+const getOne = (id: string): Patient | undefined => {
+  return patients.find(p => p.id === id);
+};
+
+const addEntry = (id: string, newEntry: EntryWithoutId): Patient | undefined => {
+  const patient = patients.find(p => p.id === id);
+  console.log(newEntry);
+
+  if ( patient ) {
+    const entry = {
+      ...newEntry,
+      id: uuid()
+    };
+    patient.entries = patient.entries.concat(entry);
   }
 
-  const updatedPatient = {
+  return patient;
+};
 
-    ...patients[patientIndex],
-    entries: [...patients[patientIndex].entries, entry],
+const create = (patient: NewPatient): Patient => {
+  const newPatient = {
+    ...patient,
+    id: uuid()
   };
 
-  patients[patientIndex] = updatedPatient;
-  return Promise.resolve(updatedPatient);
+  return newPatient;
 };
 
-
-
 export default {
-  getPatients,
-  addPatient,
-  getPatientById,
-  addEntryToPatient
-}
+  getAllWithoutSsn,
+  create,
+  getOne,
+  addEntry
+};

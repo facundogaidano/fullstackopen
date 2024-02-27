@@ -1,130 +1,170 @@
-import { Gender, NewPatientEntry, HealthCheckRating, SickLeave, Entry, OccupationalHealthcareEntry, HealthCheckEntry, HospitalEntry } from "./types";
+import { NewPatient, Gender, EntryWithoutId, Diagnosis } from "./types";
 
-const isString = (text: unknown): text is string => {
-  return typeof text === 'string' || text instanceof String
-}
-
-const parseName = (name: unknown): string => {
-  if (!isString(name)) {
-    throw new Error('Incorrect name ' + name)
-  }
-  return name
-}
-
-const isDate = (date: string): boolean => {
-  return Boolean(Date.parse(date))
-}
-
-const parseDate = (date: unknown): string => {
-  if (!isString(date) || !isDate(date)) {
-    throw new Error('Incorrect date ' + date)
-  }
-  return date
-}
-
-const parseSSN = (ssn: unknown): string => {
-  if (!isString(ssn)) {
-    throw new Error('Incorrect ssn ' + ssn)
-  }
-  return ssn
-}
-
-const isGender = (param: string): param is Gender => {
-  return Object.values(Gender).map(v => v.toString()).includes(param)
-}
-
-const parseGender = (gender: unknown): Gender => {
-  if (!isString(gender) || !isGender(gender)) {
-    throw new Error('Incorrect ssn ' + gender)
-  }
-  return gender
-}
-
-const parseOccupation = (occupation: unknown): string => {
-  if (!isString(occupation)) {
-    throw new Error('Incorrect ssn ' + occupation)
-  }
-  return occupation
-}
-
-const parseEntries = (entries: unknown[]): Entry[] => {
-  const parsedEntries: Entry[] = [];
-
-  entries.forEach(entry => {
-    if (!entry || typeof entry !== 'object') {
-      throw new Error('Incorrect or missing data');
-    }
-
-    const entryObject = entry as Record<string, unknown>;
-
-    // Determinar el tipo de entrada basado en las propiedades del objeto
-    if ('healthCheckRating' in entryObject) {
-      // Asumiendo que 'healthCheckRating' es una propiedad única de HealthCheckEntry
-      const healthCheckEntry: HealthCheckEntry = {
-        type: "HealthCheck",
-        date: entryObject.date as string,
-        healthCheckRating: entryObject.healthCheckRating as HealthCheckRating,
-        id: typeof entryObject.id === 'string' ? entryObject.id : 'default-id',
-        description: entryObject.description as string || '', // Use provided description or an empty string
-        specialist: entryObject.specialist as string || '', // Use provided specialist or an empty string
-      };
-      parsedEntries.push(healthCheckEntry);
-    } else if ('employerName' in entryObject) {
-      // Asumiendo que 'employerName' es una propiedad única de OccupationalHealthcareEntry
-      const occupationalHealthcareEntry: OccupationalHealthcareEntry = {
-        type: 'OccupationalHealthcare',
-        date: entryObject.date as string,
-        employerName: entryObject.employerName as string,
-        sickLeave: {
-          startDate: (entryObject.sickLeave as SickLeave).startDate as string,
-          endDate: (entryObject.sickLeave as SickLeave).endDate as string,
-        },
-        id: "",
-        description: "",
-        specialist: ""
-      };
-      parsedEntries.push(occupationalHealthcareEntry);
-    } else if ('description' in entryObject) {
-      // Asumiendo que 'description' es una propiedad única de HospitalEntry
-      const hospitalEntry: HospitalEntry = {
-        type: 'Hospital',
-        date: entryObject.date as string,
-        description: entryObject.description as string,
-        specialist: entryObject.specialist as string,
-        diagnosisCodes: entryObject.diagnosisCodes as string[],
-        discharge: {
-          date: "",
-          criteria: ""
-        },
-        id: ""
-      };
-      parsedEntries.push(hospitalEntry);
-    } else {
-      throw new Error('Invalid entry type');
-    }
-  });
-
-  return parsedEntries;
+const isNumber = (value: unknown): value is number => {
+  return typeof value === 'number';
 };
 
+const isString = (value: unknown): value is string => {
+  return typeof value === 'string' || value instanceof String;
+};
 
-const toNewPatientEntry = (object: unknown): NewPatientEntry => {
+const isDate = (date: string): boolean => {
+  return Boolean(Date.parse(date));
+};
+
+const isGender = (value: string): value is Gender => {
+  return Object.values(Gender).map(v => v.toString()).includes(value);
+};
+
+const parseString = (value: unknown, what: string): string => {
+  if ( isString(value)) {
+    return value;
+  }
+  throw new Error(`Value of ${what} incorrect: ${value}`);
+};
+
+const parseDate = (value: unknown, what: string): string => {
+  if (!isString(value) || !isDate(value)) {
+      throw new Error(`Value of ${what} incorrect: ${value}`);
+  }
+  return value;
+};
+
+const parseGender = (value: unknown): Gender => {
+  if (!isString(value) || !isGender(value)) {
+      throw new Error(`Value of gender incorrect: ${value}`);
+  }
+  return value;
+};
+
+const parseHealtCheckRating = (value: unknown, what: string): 0 | 1 | 2 | 3 => {
+  if ( isNumber(value) && ( value === 0 || value === 1 || value === 2 || value === 3 ) ) {
+    return value;
+  }
+  throw new Error(`Value of ${what} incorrect: ${value}`);
+};
+
+const parseDiagnosisCodes = (object: unknown): Array<Diagnosis['code']> =>  {
+  if (!object || typeof object !== 'object' || !('diagnosisCodes' in object)) {
+    return [] as Array<Diagnosis['code']>;
+  }
+
+  return object.diagnosisCodes as Array<Diagnosis['code']>;
+};
+
+type DischargeType = {
+  date: string;
+  criteria: string;
+};
+
+const parseDischarge = (object: unknown): DischargeType | undefined =>  {
+  if (!object || typeof object !== 'object' || !('discharge' in object)) {
+    return undefined;
+  }
+
+  const discharege = object.discharge;
+
+  if ( !discharege || typeof discharege !== 'object' ) throw new Error('invalid discharge');
+  if ( !('date' in discharege) || !isString(discharege.date) || !isDate(discharege.date))  {
+    throw new Error('discharge date missing or wrong type');
+  }
+    
+  if ( !('criteria' in discharege) || !isString(discharege.criteria)) {
+    throw new Error('discharge criteria missing or wrong type');
+  }
+
+  return {
+    date: discharege.date,
+    criteria: discharege.criteria
+  };
+};
+
+type SickLeaveType = {
+  startDate: string;
+  endDate: string;
+};
+
+const parseSickLeave = (object: unknown): SickLeaveType | undefined =>  {
+  if (!object || typeof object !== 'object' || !('sickLeave' in object)) {
+    return undefined;
+  }
+
+  const sickLeave = object.sickLeave;
+
+  if ( !sickLeave || typeof sickLeave !== 'object' ) throw new Error('invalid sickLeave');
+  if ( !('startDate' in sickLeave) || !isString(sickLeave.startDate) || !isDate(sickLeave.startDate))  {
+    throw new Error('sickLeave startDate missing or wrong type');
+  }
+  if ( !('endDate' in sickLeave) || !isString(sickLeave.endDate) || !isDate(sickLeave.endDate))  {
+    throw new Error('sickLeave endDate missing or wrong type');
+  }
+
+  return {
+    startDate: sickLeave.startDate,
+    endDate: sickLeave.endDate
+  };
+};
+
+export const parsePatient = (object: unknown): NewPatient=> {
   if (!object || typeof object !== 'object') {
-    throw new Error('Incorrect or missing data')
-  }
-  const objectWithEntries = object as Record<"name" | "dateOfBirth" | "ssn" | "gender" | "occupation" | "entries", unknown>;
-  if ('name' in objectWithEntries && 'dateOfBirth' in objectWithEntries && 'ssn' in objectWithEntries && 'gender' in objectWithEntries && 'occupation' in objectWithEntries && 'entries' in objectWithEntries) {
-    const newPatientEntry: NewPatientEntry = {
-      name: parseName(objectWithEntries.name),
-      dateOfBirth: parseDate(objectWithEntries.dateOfBirth),
-      ssn: parseSSN(objectWithEntries.ssn),
-      gender: parseGender(objectWithEntries.gender),
-      occupation: parseOccupation(objectWithEntries.occupation),
-      entries: Array.isArray(objectWithEntries.entries) ? parseEntries(objectWithEntries.entries) : []
-    }
-    return newPatientEntry
+    throw new Error('Data missing or in wrong format');
   }
 
-  throw new Error('Incorrect data: a field missing');
-}
-export default toNewPatientEntry
+  if ( !('name' in object)) throw new Error('name missing');
+  if ( !('occupation' in object)) throw new Error('occupation missing');
+  if ( !('ssn' in object)) throw new Error('ssn missing');
+  if ( !('gender' in object)) throw new Error('gender missing');
+  if ( !('dateOfBirth' in object)) throw new Error('dateOfBirth missing');
+
+  return {
+    name: parseString(object.name, 'name'),
+    dateOfBirth: parseDate(object.dateOfBirth, 'dateOfBirth'),
+    gender: parseGender(object.gender),
+    occupation: parseString(object.occupation, 'occupation'),
+    ssn: parseString(object.ssn, 'occupation'),
+    entries: []
+  };
+};
+
+export const parseEntry = (object: unknown): EntryWithoutId => {
+  if (!object || typeof object !== 'object') {
+    throw new Error('Data missing or in wrong format');
+  }
+
+  if ( !('type' in object)) throw new Error('type missing');
+  if ( !('date' in object)) throw new Error('date missing');
+  if ( !('specialist' in object)) throw new Error('specialist missing');
+  if ( !('description' in object)) throw new Error('description missing');
+
+  const common = {
+    date: parseDate(object.date, 'date'),
+    specialist: parseString(object.specialist, 'specialist'),
+    description: parseString(object.description, 'description'),
+    diagnosisCodes: parseDiagnosisCodes(object)
+  };
+
+  if ( object.type === 'HealthCheck') {
+    if ( !('healthCheckRating' in object)) throw new Error('healthCheckRating missing');
+    return {
+      ...common,
+      type: 'HealthCheck',
+      healthCheckRating: parseHealtCheckRating(object.healthCheckRating, 'healthCheckRating'),
+    };
+  } else if ( object.type === 'OccupationalHealthcare') {
+    if ( !('employerName' in object)) throw new Error('employerName missing');
+    return {
+      ...common,
+      type: 'OccupationalHealthcare',
+      employerName: parseString(object.employerName, 'employerName'),
+      sickLeave: parseSickLeave(object)
+    };
+  } else if ( object.type === 'Hospital') {
+    return {
+      ...common,
+      type: 'Hospital',
+      discharge: parseDischarge(object)
+    };
+  } 
+
+  throw new Error(`Incorrect type: ${object.type}`);
+};

@@ -1,9 +1,21 @@
+export interface Diagnosis {
+  code: string;
+  name: string;
+  latin?: string;
+}
+
+export enum Gender {
+  Male = 'male',
+  Female = 'female',
+  Other = 'other',
+}
+
 interface BaseEntry {
   id: string;
   description: string;
   date: string;
   specialist: string;
-  diagnosisCodes?: string[];
+  diagnosisCodes?: Array<Diagnosis['code']>;
 }
 
 export enum HealthCheckRating {
@@ -13,25 +25,20 @@ export enum HealthCheckRating {
   "CriticalRisk" = 3
 }
 
-export interface SickLeave {
-  startDate: string;
-  endDate: string;
-}
-
-export interface HealthCheckEntry extends BaseEntry {
+interface HealthCheckEntry extends BaseEntry {
   type: "HealthCheck";
   healthCheckRating: HealthCheckRating;
 }
 
-export interface HospitalEntry extends BaseEntry {
+interface HospitalEntry extends BaseEntry {
   type: "Hospital";
-  discharge: {
+  discharge?: {
     date: string;
     criteria: string;
   }
 }
 
-export interface OccupationalHealthcareEntry extends BaseEntry {
+interface OccupationalHealthcareEntry extends BaseEntry {
   type: "OccupationalHealthcare";
   employerName: string;
   sickLeave?: {
@@ -45,39 +52,20 @@ export type Entry =
   | OccupationalHealthcareEntry
   | HealthCheckEntry;
 
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit<T, K> : never;
 
-// Define special omit for unions
-// type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit<T, K> : never;
-// Define Entry without the 'id' property
-// type EntryWithoutId = UnionOmit<Entry, 'id'>;
+export type EntryWithoutId = UnionOmit<Entry, 'id'>;
 
 export interface Patient {
   id: string;
   name: string;
-  ssn: string;
-  occupation: string;
-  gender: Gender;
   dateOfBirth: string;
+  ssn: string;
+  gender: Gender;
+  occupation: string;
   entries: Entry[]
 }
 
-export type NewPatientEntry = Omit<Patient, 'id'>
+export type NonSensitivePatient = Omit<Patient, 'ssn' | 'entres'>;
 
-export type NonSensitivePatient = Omit<Patient, 'ssn' | 'entries'>;
-
-export const getNonSensitivePatientsEntries = (patient: NonSensitivePatient): NonSensitivePatient => {
-  const {...rest } = patient;
-  return rest;
-}
-
-export interface DiagnoseEntry {
-  code: string;
-  name: string;
-  latin?: string;
-}
-
-export enum Gender {
-  male = 'Male',
-  female = 'Female',
-  other = 'Other'
-}
+export type NewPatient = Omit<Patient, 'id'>;
